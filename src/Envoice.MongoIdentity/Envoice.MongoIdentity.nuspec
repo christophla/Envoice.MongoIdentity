@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Envoice.MongoIdentity</id>
+        <authors>christophla</authors>
+        <copyright>Copyright © 2018, Envoice LLC<copyright>
+        <description>ASPNET Identity store for MongoDB</description>
+        <keywords>code conditions design contract envoice</keywords>
+        <owners>christophla</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <title>Envoice.Conditions</title>
+        <version>1.0.0</version>
+    </metadata>
+    <files>
+        <file src="bin\Release\netcoreapp2.0\Envoice.MongoIdentity.dll" target="lib\netcoreapp2.0\Envoice.MongoIdentity.dll" />
+        <file src="bin\Release\netcoreapp2.0\Envoice.MongoIdentity.pdb" target="lib\netcoreapp2.0\Envoice.MongoIdentity.pdb" />
+        <file src="**\*.cs" target="src" />
+    </files>
+</package>

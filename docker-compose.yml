@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+
+  mongo:
+    image: mongo:3
+    container_name: Envoice-mongoidentity
+    command: mongod --smallfiles --bind_ip_all
+    ports:
+      - "6056:27017"
+    networks:
+      - dev-network
+    tty: true
+    stdin_open: true
+
+networks:
+  dev-network:
+    driver: bridge
