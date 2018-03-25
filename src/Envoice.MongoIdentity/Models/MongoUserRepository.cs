@@ -1,7 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Envoice.MongoIdentity.MongoDB;
-using Envoice.MongoRepository.Impl;
+using Envoice.MongoRepository;
 using Microsoft.AspNetCore.Identity;
 using MongoDB.Driver;
 
@@ -9,10 +9,6 @@ namespace Envoice.MongoIdentity.Models
 {
   public class MongoUserRepository : MongoRepository<MongoIdentityUser>
   {
-    public MongoUserRepository(IMongoDatabase database, string collectionName) : base(database, collectionName)
-    {
-    }
-
     #region [ Overridden Methods ]
 
     public override void Delete(MongoIdentityUser user, CancellationToken cancellationToken = default(CancellationToken))

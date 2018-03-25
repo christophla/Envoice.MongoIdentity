@@ -75,13 +75,13 @@ namespace Envoice.MongoIdentity.UnitTests
         //     }
         // }
 
-        public class MyIdentityUser : MongoIdentityUser
-        {
-            public MyIdentityUser(string userName) : base(userName)
-            {
-            }
+//         public class MyIdentityUser : MongoIdentityUser
+//         {
+//             public MyIdentityUser(string userName) : base(userName)
+//             {
+//             }
 
-            public string MyCustomThing { get; set; }
-        }
+//             public string MyCustomThing { get; set; }
+//         }
     }
 }

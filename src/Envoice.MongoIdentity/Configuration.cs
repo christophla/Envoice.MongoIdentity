@@ -32,6 +32,14 @@ namespace Envoice.MongoIdentity
                 get { return _configuration.GetConnectionString(Constants.DefaultConnectionStringName); }
             }
 
+            /// <summary>
+            /// Indicates if indexes whould be created.
+            /// </summary>
+            public static bool EnableIndexes
+            {
+                get { return false; }
+            }
+
         }
     }
 }

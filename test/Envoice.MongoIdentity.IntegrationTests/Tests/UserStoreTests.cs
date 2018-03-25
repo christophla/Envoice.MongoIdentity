@@ -1,10 +1,9 @@
-using System.Threading;
-using System.Threading.Tasks;
 using Envoice.MongoIdentity.MongoDB;
 using Microsoft.AspNetCore.Identity;
 using MongoDB.Driver;
 using Shouldly;
-using Xbehave;
+using System.Threading.Tasks;
+using System.Threading;
 using Xunit;
 
 namespace Envoice.MongoIdentity.IntegrationTests.Tests
@@ -38,7 +37,7 @@ namespace Envoice.MongoIdentity.IntegrationTests.Tests
       var user = new MongoIdentityUser("test_account", "test@mongo.com");
       var createResult = await _userStore.CreateAsync(user, CancellationToken.None);
 
-      
+
     }
 
     [Fact]

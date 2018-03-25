@@ -9,7 +9,7 @@ imageName="envoice-mongoidentity"
 nugetFeedUri="https://www.myget.org/F/envoice/api/v2"
 nugetKey=$MYGET_KEY_ENVOICE
 nugetVersion="1.0.0"
-nugetVersionSuffix="rc1"
+nugetVersionSuffix="rc2"
 projectName="envoice-mongoidentity"
 runtimeID="debian.8-x64"
 
@@ -54,7 +54,7 @@ buildProject () {
   echo -e "${YELLOW} Building the project $solutionName ($ENVIRONMENT) into $pubFolder ${RESTORE}\n"
 
   dotnet restore
-  dotnet publish $solutionName -f $framework -r $runtimeID -c $ENVIRONMENT -o $pubFolder
+  dotnet publish $solutionName -f $framework -r $runtimeID -c $ENVIRONMENT -o $pubFolder -v quiet
 }
 
 # Builds the Docker image.

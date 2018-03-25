@@ -53,7 +53,7 @@ $imageName = "envoice-mongoidentity"
 $nugetFeedUri="https://www.myget.org/F/envoice/api/v2"
 $nugetKey=$Env:MYGET_KEY_ENVOICE
 $nugetVersion = "1.0.0"
-$nugetVersionSuffix = "rc1"
+$nugetVersionSuffix = "rc3"
 $projectName = "envoice-mongoidentity"
 $runtimeID = "debian.8-x64"
 
@@ -79,7 +79,7 @@ function BuildProject () {
     Write-Host "Building the project ($ENVIRONMENT) into $pubFolder." -ForegroundColor "Yellow"
 
     dotnet restore
-    dotnet publish $solutionName -f $framework -r $runtimeID -c $Environment -o $pubFolder
+    dotnet publish $solutionName -f $framework -r $runtimeID -c $Environment -o $pubFolder -v quiet
 }
 
 # Builds the Docker image.
@@ -178,6 +178,8 @@ function NuGetPublish () {
     Write-Host "+ Deploying nuget packages to myget feed        " -ForegroundColor "Green"
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
 
+    Write-Host "Using Key: $nugetKey" -ForegroundColor "Yellow"
+
     Set-Location src
 
     Get-ChildItem -Filter "*.nuspec" -Recurse -Depth 1 |
@@ -267,7 +269,6 @@ elseif ($IntegrationTests) {
     IntegrationTests
 }
 elseif ($NuGetPublish) {
-    BuildProject
     NuGetPublish
 }
 elseif ($UnitTests) {

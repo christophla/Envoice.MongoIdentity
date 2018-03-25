@@ -7,11 +7,11 @@ namespace Envoice.MongoIdentity.IntegrationTests.Tests
     /// </summary>
     public abstract class TestsBase
     {
-        protected TestsBase() 
+        protected TestsBase()
         {
-            var url = new MongoUrl(Configuration.Database.ConnectionString);
-            var client = new MongoClient(url);
-            client.DropDatabase(url.DatabaseName);
+            // var url = new MongoUrl(Configuration.Database.ConnectionString);
+            // var client = new MongoClient(url);
+            // client.DropDatabase(url.DatabaseName);
         }
     }
 }

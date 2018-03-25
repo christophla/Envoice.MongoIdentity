@@ -1,16 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Envoice.Conditions" Version="1.0.0" />
-    <PackageReference Include="Envoice.MongoRepository" Version="1.0.0-rc1" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
-    <PackageReference Include="MongoDB.Driver" Version="2.5.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.1" />
-    <PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.0</TargetFramework>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Envoice.Conditions" Version="1.0.0" />
+        <PackageReference Include="Envoice.MongoRepository" Version="1.0.0-rc3" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
+        <PackageReference Include="MongoDB.Driver" Version="2.5.0" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.1" />
+        <PackageReference Include="System.Diagnostics.Tracing" Version="4.3.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <!-- <ProjectReference Include="..\..\..\mongo.repository\src\Envoice.MongoRepository\Envoice.MongoRepository.csproj"/> -->
+    </ItemGroup>
+
 </Project>
