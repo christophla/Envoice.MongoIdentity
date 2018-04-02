@@ -9,9 +9,9 @@ namespace Envoice.MongoIdentity.IntegrationTests.Tests
     {
         protected TestsBase()
         {
-            // var url = new MongoUrl(Configuration.Database.ConnectionString);
-            // var client = new MongoClient(url);
-            // client.DropDatabase(url.DatabaseName);
+            var url = new MongoUrl(Configuration.Database.ConnectionString);
+            var client = new MongoClient(url);
+            client.DropDatabase(url.DatabaseName);
         }
     }
 }

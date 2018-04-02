@@ -83,6 +83,12 @@ namespace Envoice.MongoIdentity.MongoDB
             }
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<IdentityResult> CreateAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -94,6 +100,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return IdentityResult.Success;
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<IdentityResult> DeleteAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -108,6 +120,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return IdentityResult.Success;
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<TUser> FindByIdAsync(string userId, CancellationToken cancellationToken)
         {
             Condition.Requires(userId, "userId").IsNotNullOrWhiteSpace();
@@ -122,6 +140,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return await _usersRepository.Collection.Find(query).FirstOrDefaultAsync(cancellationToken);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="normalizedUserName"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<TUser> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
             Condition.Requires(normalizedUserName, "normalizedUserName").IsNotNullOrWhiteSpace();
@@ -136,6 +160,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return await _usersRepository.Collection.Find(query).FirstOrDefaultAsync(cancellationToken);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<string> GetNormalizedUserNameAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -143,6 +173,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(user.NormalizedUserName);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<string> GetUserIdAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -150,6 +186,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(user.Id);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<string> GetUserNameAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -157,6 +199,13 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(user.UserName);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="normalizedName"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task SetNormalizedUserNameAsync(TUser user, string normalizedName, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -167,11 +216,24 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="userName"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task SetUserNameAsync(TUser user, string userName, CancellationToken cancellationToken)
         {
             throw new NotSupportedException("Changing the username is not supported.");
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<IdentityResult> UpdateAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -188,6 +250,13 @@ namespace Envoice.MongoIdentity.MongoDB
                 : IdentityResult.Failed();
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="login"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task AddLoginAsync(TUser user, UserLoginInfo login, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -204,6 +273,14 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="loginProvider"></param>
+        /// <param name="providerKey"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task RemoveLoginAsync(TUser user, string loginProvider, string providerKey, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -221,6 +298,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<IList<UserLoginInfo>> GetLoginsAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -231,6 +314,13 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult<IList<UserLoginInfo>>(logins.ToList());
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="loginProvider"></param>
+        /// <param name="providerKey"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<TUser> FindByLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken)
         {
             Condition.Requires(loginProvider, "loginProvider").IsNotNullOrWhiteSpace();
@@ -249,6 +339,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return _usersRepository.Collection.Find(query).FirstOrDefaultAsync();
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<IList<Claim>> GetClaimsAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -258,6 +354,13 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult<IList<Claim>>(claims);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="claims"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task AddClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -271,6 +374,14 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="claim"></param>
+        /// <param name="newClaim"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -283,6 +394,13 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="claims"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -296,6 +414,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="claim"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<IList<TUser>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken)
         {
             Condition.Requires(claim, "claim").IsNotNull();
@@ -314,6 +438,13 @@ namespace Envoice.MongoIdentity.MongoDB
             return users;
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="passwordHash"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task SetPasswordHashAsync(TUser user, string passwordHash, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -324,6 +455,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<string> GetPasswordHashAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -331,6 +468,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(user.PasswordHash);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<bool> HasPasswordAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -338,6 +481,13 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(user.PasswordHash != null);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="stamp"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task SetSecurityStampAsync(TUser user, string stamp, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -348,6 +498,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<string> GetSecurityStampAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -355,6 +511,13 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(user.SecurityStamp);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="enabled"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task SetTwoFactorEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -371,6 +534,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<bool> GetTwoFactorEnabledAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -378,6 +547,13 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(user.IsTwoFactorEnabled);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="email"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task SetEmailAsync(TUser user, string email, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -388,6 +564,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<string> GetEmailAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -397,6 +579,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(email);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<bool> GetEmailConfirmedAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -409,6 +597,13 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(user.Email.IsConfirmed());
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="confirmed"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task SetEmailConfirmedAsync(TUser user, bool confirmed, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -430,6 +625,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="normalizedEmail"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken)
         {
             Condition.Requires(normalizedEmail, "normalizedEmail").IsNotNullOrWhiteSpace();
@@ -442,6 +643,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return _usersRepository.Collection.Find(query).FirstOrDefaultAsync(cancellationToken);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<string> GetNormalizedEmailAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -451,6 +658,13 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(normalizedEmail);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="normalizedEmail"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task SetNormalizedEmailAsync(TUser user, string normalizedEmail, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -467,6 +681,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<DateTimeOffset?> GetLockoutEndDateAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -478,6 +698,13 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(lockoutEndDate);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="lockoutEnd"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task SetLockoutEndDateAsync(TUser user, DateTimeOffset? lockoutEnd, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -490,6 +717,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public async Task<int> IncrementAccessFailedCountAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -511,6 +744,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return newCount;
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task ResetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -520,6 +759,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<int> GetAccessFailedCountAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -527,6 +772,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(user.AccessFailedCount);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<bool> GetLockoutEnabledAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -534,6 +785,13 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(user.IsLockoutEnabled);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="enabled"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task SetLockoutEnabledAsync(TUser user, bool enabled, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -550,6 +808,13 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="phoneNumber"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task SetPhoneNumberAsync(TUser user, string phoneNumber, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -565,6 +830,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<string> GetPhoneNumberAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -572,6 +843,12 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(user.PhoneNumber?.Value);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         public Task<bool> GetPhoneNumberConfirmedAsync(TUser user, CancellationToken cancellationToken)
         {
             Condition.Requires(user, "user").IsNotNull();
@@ -598,6 +875,9 @@ namespace Envoice.MongoIdentity.MongoDB
             return Task.FromResult(0);
         }
 
+        /// <summary>
+        ///
+        /// </summary>
         public void Dispose()
         {
         }

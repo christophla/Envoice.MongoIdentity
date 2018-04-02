@@ -16,74 +16,80 @@
 .PARAMETER UnitTests
 	Builds the image and runs the unit tests.
 .PARAMETER Environment
-	The enviorment to build for (Debug or Release), defaults to Debug
+	The environment to build for (Debug or Release), defaults to Debug
+.PARAMETER Quiet
+	Hides the welcome message
 .EXAMPLE
 	C:\PS> .\project-tasks.ps1 -Build (Build a Docker image named test_image)
 #>
 
+# #############################################################################
+# Params
+#
 [CmdletBinding(PositionalBinding = $false)]
 Param(
-    [Parameter(Mandatory = $True, ParameterSetName = "Build")]
     [switch]$Build,
-    [Parameter(Mandatory = $True, ParameterSetName = "Clean")]
     [switch]$Clean,
-    [Parameter(Mandatory = $True, ParameterSetName = "Compose")]
     [switch]$Compose,
-    [Parameter(Mandatory = $True, ParameterSetName = "ComposeForDebug")]
     [switch]$ComposeForDebug,
-    [Parameter(Mandatory = $True, ParameterSetName = "IntegrationTests")]
+    [switch]$GenerateRestClient,
     [switch]$IntegrationTests,
-    [Parameter(Mandatory = $True, ParameterSetName = "NuGetPublish")]
     [switch]$NuGetPublish,
-    [Parameter(Mandatory = $True, ParameterSetName = "UnitTests")]
+    [switch]$TestAll,
     [switch]$UnitTests,
-    [parameter(ParameterSetName = "Build")]
-    [parameter(ParameterSetName = "Clean")]
-    [parameter(ParameterSetName = "Compose")]
-    [Parameter(ParameterSetName = "ComposeForDebug")]
-    [parameter(ParameterSetName = "IntegrationTests")]
-    [parameter(ParameterSetName = "NuGetPublish")]
-    [parameter(ParameterSetName = "UnitTests")]
+    [switch]$Quiet,
     [ValidateNotNullOrEmpty()]
     [String]$Environment = "Debug"
 )
 
-$framework = "netcoreapp2.0"
-$imageName = "envoice-mongoidentity"
-$nugetFeedUri="https://www.myget.org/F/envoice/api/v2"
-$nugetKey=$Env:MYGET_KEY_ENVOICE
-$nugetVersion = "1.0.0"
-$nugetVersionSuffix = "rc3"
-$projectName = "envoice-mongoidentity"
-$runtimeID = "debian.8-x64"
 
+# #############################################################################
+# Settings
+#
+
+$Environment = $Environment.ToLowerInvariant()
+$ImageName = "envoice-mongoidentity"
+$NugetFeedUri="https://www.myget.org/F/envoice/api/v2"
+$NugetKey=$Env:MYGET_KEY_ENVOICE
+$NugetVersion = "1.0.0"
+$NugetVersionSuffix = ""
+$ProjectName = "envoice"
+
+
+# #############################################################################
 # Welcome message
-function Welcome () {
+#
+Function Welcome () {
 
-    Write-Host "                         _          " -ForegroundColor "Blue"
-    Write-Host "  ___  ____ _   ______  (_)_______  " -ForegroundColor "Blue"
-    Write-Host " / _ \/ __ \ | / / __ \/ / ___/ _ \ " -ForegroundColor "Blue"
-    Write-Host "/  __/ / / / |/ / /_/ / / /__/  __/ " -ForegroundColor "Blue"
-    Write-Host "\___/_/ /_/|___/\____/_/\___/\___/  " -ForegroundColor "Blue"
+    Write-Host "                     _         " -ForegroundColor "Blue"
+    Write-Host "  ___ ___ _  _____  (_)______  " -ForegroundColor "Blue"
+    Write-Host " / -_) _ \ |/ / _ \/ / __/ -_) " -ForegroundColor "Blue"
+    Write-Host " \__/_//_/___/\___/_/\__/\__/  " -ForegroundColor "Blue"
     Write-Host ""
 }
 
+
+# #############################################################################
 # Builds the project
-function BuildProject () {
+#
+Function BuildProject () {
 
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
-    Write-Host "+ Building $projectName                         " -ForegroundColor "Green"
+    Write-Host "+ Building $ProjectName                         " -ForegroundColor "Green"
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
 
-    $pubFolder = "bin\$Environment\$framework\publish"
+    $pubFolder = "bin\$Environment\$Framework\publish"
     Write-Host "Building the project ($ENVIRONMENT) into $pubFolder." -ForegroundColor "Yellow"
 
     dotnet restore
-    dotnet publish $solutionName -f $framework -r $runtimeID -c $Environment -o $pubFolder -v quiet
+    dotnet publish -c $Environment -o $pubFolder -v quiet
 }
 
-# Builds the Docker image.
-function BuildImage () {
+
+# #############################################################################
+# Builds the Docker image
+#
+Function BuildImage () {
 
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
     Write-Host "+ Building docker image                         " -ForegroundColor "Green"
@@ -95,16 +101,18 @@ function BuildImage () {
     }
 
     if (Test-Path $composeFileName) {
-        Write-Host "Building the image $imageName ($Environment)." -ForegroundColor "Yellow"
-        docker-compose -f "$composeFileName" -p $projectName build
+        Write-Host "Building the image $ImageName ($Environment)." -ForegroundColor "Yellow"
+        docker-compose -f "$composeFileName" -p $ProjectName build
     }
     else {
         Write-Error -Message "$Environment is not a valid parameter. File '$composeFileName' does not exist." -Category InvalidArgument
     }
 }
 
-# Kills all running containers of an image and then removes them.
-function CleanAll () {
+# #############################################################################
+# Kills all running containers of an image and then removes them
+#
+Function CleanAll () {
 
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
     Write-Host "+ Cleaning projects and docker images           " -ForegroundColor "Green"
@@ -118,7 +126,7 @@ function CleanAll () {
     }
 
     if (Test-Path $composeFileName) {
-        docker-compose -f "$composeFileName" -p $projectName down --rmi all
+        docker-compose -f "$composeFileName" -p $ProjectName down --rmi all
 
         $danglingImages = $(docker images -q --filter 'dangling=true')
         if (-not [String]::IsNullOrWhiteSpace($danglingImages)) {
@@ -131,8 +139,10 @@ function CleanAll () {
     }
 }
 
-# Runs docker-compose.
-function Compose () {
+# #############################################################################
+# Runs docker-compose
+#
+Function Compose () {
 
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
     Write-Host "+ Composing docker images                       " -ForegroundColor "Green"
@@ -145,16 +155,19 @@ function Compose () {
 
     if (Test-Path $composeFileName) {
         Write-Host "Running compose file $composeFileName" -ForegroundColor "Yellow"
-        docker-compose -f $composeFileName -p $projectName kill
-        docker-compose -f $composeFileName -p $projectName up -d
+        docker-compose -f $composeFileName -p $ProjectName kill
+        docker-compose -f $composeFileName -p $ProjectName up -d
     }
     else {
         Write-Error -Message "$Environment is not a valid parameter. File '$dockerFileName' does not exist." -Category InvalidArgument
     }
 }
 
-# Runs the integration tests.
-function IntegrationTests () {
+
+# #############################################################################
+# Runs the integration tests
+#
+Function IntegrationTests () {
 
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
     Write-Host "+ Running integration tests                     " -ForegroundColor "Green"
@@ -171,14 +184,17 @@ function IntegrationTests () {
 
 }
 
-# Deploys nuget packages to myget feed
-function NuGetPublish () {
+
+# #############################################################################
+# Deploys Nuget packages to myget feed
+#
+Function NuGetPublish () {
 
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
-    Write-Host "+ Deploying nuget packages to myget feed        " -ForegroundColor "Green"
+    Write-Host "+ Deploying Nuget packages to myget feed        " -ForegroundColor "Green"
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
 
-    Write-Host "Using Key: $nugetKey" -ForegroundColor "Yellow"
+    Write-Host "Using Key: $NugetKey" -ForegroundColor "Yellow"
 
     Set-Location src
 
@@ -188,16 +204,16 @@ function NuGetPublish () {
         $packageName = $_.BaseName
         Set-Location $_.BaseName
 
-        if ($nugetVersionSuffix) {
+        if ($NugetVersionSuffix) {
 
-            dotnet pack -c $Environment --include-source --include-symbols --version-suffix $nugetVersionSuffix
+            dotnet pack -c $Environment --include-source --include-symbols --version-suffix $NugetVersionSuffix
 
-            Write-Host "Publishing: $packageName.$nugetVersion-$nugetVersionSuffix" -ForegroundColor "Yellow"
+            Write-Host "Publishing: $packageName.$NugetVersion-$NugetVersionSuffix" -ForegroundColor "Yellow"
 
             Invoke-WebRequest `
-                -uri $nugetFeedUri `
-                -InFile "bin/$Environment/$packageName.$nugetVersion-$nugetVersionSuffix.nupkg" `
-                -Headers @{"X-NuGet-ApiKey" = "$nugetKey"} `
+                -uri $NugetFeedUri `
+                -InFile "bin/$Environment/$packageName.$NugetVersion-$NugetVersionSuffix.nupkg" `
+                -Headers @{"X-NuGet-ApiKey" = "$NugetKey"} `
                 -Method "PUT" `
                 -ContentType "multipart/form-data"
 
@@ -206,12 +222,12 @@ function NuGetPublish () {
 
             dotnet pack -c $Environment --include-source --include-symbols
 
-            Write-Host "Publishing: $packageName.$nugetVersion" -ForegroundColor "Yellow"
+            Write-Host "Publishing: $packageName.$NugetVersion" -ForegroundColor "Yellow"
 
             Invoke-WebRequest `
-                -uri $nugetFeedUri `
-                -InFile "bin/$Environment/$packageName.$nugetVersion.nupkg" `
-                -Headers @{"X-nuget-ApiKey" = "$nugetKey"} `
+                -uri $NugetFeedUri `
+                -InFile "bin/$Environment/$packageName.$NugetVersion.nupkg" `
+                -Headers @{"X-Nuget-ApiKey" = "$NugetKey"} `
                 -Method "PUT" `
                 -ContentType "multipart/form-data"
 
@@ -222,8 +238,11 @@ function NuGetPublish () {
 
 }
 
-# Runs the unit tests.
-function UnitTests () {
+
+# #############################################################################
+# Runs the unit tests
+#
+Function UnitTests () {
 
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
     Write-Host "+ Running unit tests                            " -ForegroundColor "Green"
@@ -240,11 +259,12 @@ function UnitTests () {
 
 }
 
-$Environment = $Environment.ToLowerInvariant()
 
-# Call the correct function for the parameter that was used
+# #############################################################################
+# Call the correct Function for the parameter that was used
+#
 
-Welcome
+If(!$Quiet) { Welcome }
 
 if ($Build) {
     BuildProject
@@ -275,3 +295,6 @@ elseif ($UnitTests) {
     BuildProject
     UnitTests
 }
+
+
+# #############################################################################

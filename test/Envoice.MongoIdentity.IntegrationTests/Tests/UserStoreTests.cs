@@ -14,7 +14,7 @@ namespace Envoice.MongoIdentity.IntegrationTests.Tests
 
     public UserStoreTests()
     {
-      this._userStore = new MongoUserStore<MongoIdentityUser>(Configuration.Database.ConnectionString);
+      this._userStore = new MongoUserStore<MongoIdentityUser>(Configuration.Database.ConnectionString, true);
     }
 
     [Fact]
@@ -31,14 +31,12 @@ namespace Envoice.MongoIdentity.IntegrationTests.Tests
       deleteResult.Succeeded.ShouldBeTrue();
     }
 
-    [Fact]
-    public async Task CanUpdateUser() {
+    // [Fact]
+    // public async Task CanUpdateUser() {
 
-      var user = new MongoIdentityUser("test_account", "test@mongo.com");
-      var createResult = await _userStore.CreateAsync(user, CancellationToken.None);
-
-
-    }
+    //   var user = new MongoIdentityUser("test_account_2", "test@mongo.com");
+    //   var createResult = await _userStore.CreateAsync(user, CancellationToken.None);
+    // }
 
     [Fact]
     public async Task CanCreateMultipleUsers() {
