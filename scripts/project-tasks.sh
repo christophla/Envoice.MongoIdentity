@@ -336,7 +336,6 @@ else
             ;;
         "integrationTests")
             compose
-            integrationTests
             ;;
         "nugetPublish")
             nugetPublish
