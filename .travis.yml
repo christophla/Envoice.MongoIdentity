@@ -1,0 +1,4 @@
+language: csharp
+solution: Envoice.MongoIdentity.sln
+mono: none
+dotnet: 2.1.300
