@@ -1,12 +1,12 @@
 <#
 .SYNOPSIS
 	Project tasks
-.PARAMETER Compose
-	Runs docker-compose.
 .PARAMETER Build
 	Builds a Docker image.
 .PARAMETER Clean
 	Removes the image test_image and kills all containers based on that image.
+.PARAMETER Compose
+	Runs docker-compose.
 .PARAMETER ComposeForDebug
     Builds the image and runs docker-compose.
 .PARAMETER IntegrationTests
@@ -32,7 +32,6 @@ Param(
     [switch]$Clean,
     [switch]$Compose,
     [switch]$ComposeForDebug,
-    [switch]$GenerateRestClient,
     [switch]$IntegrationTests,
     [switch]$NuGetPublish,
     [switch]$TestAll,
@@ -46,14 +45,12 @@ Param(
 # #############################################################################
 # Settings
 #
-
 $Environment = $Environment.ToLowerInvariant()
-$ImageName = "envoice-mongoidentity"
-$NugetFeedUri="https://www.myget.org/F/envoice/api/v2"
-$NugetKey=$Env:MYGET_KEY_ENVOICE
-$NugetVersion = "1.0.0"
+$Framework = "netstandard2.0"
+$NugetFeedUri = "https://www.myget.org/F/envoice/api/v3/index.json"
+$NugetKey = $Env:MYGET_KEY_ENVOICE
 $NugetVersionSuffix = ""
-$ProjectName = "envoice"
+$ROOT_DIR = (Get-Item -Path ".\" -Verbose).FullName
 
 
 # #############################################################################
@@ -66,6 +63,7 @@ Function Welcome () {
     Write-Host " / -_) _ \ |/ / _ \/ / __/ -_) " -ForegroundColor "Blue"
     Write-Host " \__/_//_/___/\___/_/\__/\__/  " -ForegroundColor "Blue"
     Write-Host ""
+
 }
 
 
@@ -79,7 +77,7 @@ Function BuildProject () {
     Write-Host "++++++++++++++++++++++++++++++++++++++++++++++++" -ForegroundColor "Green"
 
     $pubFolder = "bin\$Environment\$Framework\publish"
-    Write-Host "Building the project ($ENVIRONMENT) into $pubFolder." -ForegroundColor "Yellow"
+    Write-Host "Building the project ($Environment) into $pubFolder." -ForegroundColor "Yellow"
 
     dotnet restore
     dotnet publish -c $Environment -o $pubFolder -v quiet
@@ -102,12 +100,13 @@ Function BuildImage () {
 
     if (Test-Path $composeFileName) {
         Write-Host "Building the image $ImageName ($Environment)." -ForegroundColor "Yellow"
-        docker-compose -f "$composeFileName" -p $ProjectName build
+        docker-compose -f "$composeFileName" build
     }
     else {
         Write-Error -Message "$Environment is not a valid parameter. File '$composeFileName' does not exist." -Category InvalidArgument
     }
 }
+
 
 # #############################################################################
 # Kills all running containers of an image and then removes them
@@ -126,7 +125,7 @@ Function CleanAll () {
     }
 
     if (Test-Path $composeFileName) {
-        docker-compose -f "$composeFileName" -p $ProjectName down --rmi all
+        docker-compose -f "$composeFileName" down --rmi all
 
         $danglingImages = $(docker images -q --filter 'dangling=true')
         if (-not [String]::IsNullOrWhiteSpace($danglingImages)) {
@@ -138,6 +137,7 @@ Function CleanAll () {
         Write-Error -Message "$Environment is not a valid parameter. File '$composeFileName' does not exist." -Category InvalidArgument
     }
 }
+
 
 # #############################################################################
 # Runs docker-compose
@@ -155,8 +155,8 @@ Function Compose () {
 
     if (Test-Path $composeFileName) {
         Write-Host "Running compose file $composeFileName" -ForegroundColor "Yellow"
-        docker-compose -f $composeFileName -p $ProjectName kill
-        docker-compose -f $composeFileName -p $ProjectName up -d
+        docker-compose -f $composeFileName kill
+        docker-compose -f $composeFileName up -d
     }
     else {
         Write-Error -Message "$Environment is not a valid parameter. File '$dockerFileName' does not exist." -Category InvalidArgument
@@ -177,8 +177,8 @@ Function IntegrationTests () {
 
     Get-ChildItem -Directory -Filter "*.IntegrationTests*" |
         ForEach-Object {
-        Set-Location $_.FullName # or whatever
-        dotnet test
+        Set-Location $_.FullName
+        dotnet test -c $Environment /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
         Set-Location ..
     }
 
@@ -253,7 +253,7 @@ Function UnitTests () {
     Get-ChildItem -Directory -Filter "*.UnitTests*" |
         ForEach-Object {
         Set-Location $_.FullName # or whatever
-        dotnet test
+        dotnet test -c $Environment /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
         Set-Location ..
     }
 
@@ -279,13 +279,12 @@ elseif ($Compose) {
 elseif ($ComposeForDebug) {
     $env:REMOTE_DEBUGGING = "enabled"
     BuildProject
-    BuildImage
+    #BuildImage
     Compose
 }
 elseif ($IntegrationTests) {
-    BuildProject
-    BuildImage
-    Compose
+    #BuildProject
+    #Compose
     IntegrationTests
 }
 elseif ($NuGetPublish) {
