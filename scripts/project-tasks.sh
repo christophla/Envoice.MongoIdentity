@@ -3,18 +3,21 @@
 # #############################################################################
 # Settings
 #
-imageName="ngs-nff-autostore-integration"
-nugetFeedUri="https://www.myget.org/F/envoice/api/v2"
+branch=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then echo $TRAVIS_BRANCH; else echo $TRAVIS_PULL_REQUEST_BRANCH; fi)
+nugetFeedUri="https://www.myget.org/F/envoice/api/v3/index.json"
 nugetKey=$MYGET_KEY_ENVOICE
-nugetVersion="1.0.0"
-nugetVersionSuffix=""
-projectName="envoice"
+revision=${TRAVIS_BUILD_NUMBER:=1}
 
+
+# #############################################################################
+# Constants
+#
 BLUE="\033[00;94m"
 GREEN="\033[00;92m"
 RED="\033[00;31m"
 RESTORE="\033[0m"
 YELLOW="\033[00;93m"
+ROOT_DIR=$(pwd)
 
 
 # #############################################################################
@@ -22,14 +25,29 @@ YELLOW="\033[00;93m"
 #
 welcome () {
 
-  echo -en "${BLUE}\n"
-  echo -en "                         _          \n"
-  echo -en "  ___  ____ _   ______  (_)_______  \n"
-  echo -en " / _ \/ __ \ | / / __ \/ / ___/ _ \ \n"
-  echo -en "/  __/ / / / |/ / /_/ / / /__/  __/ \n"
-  echo -en "\___/_/ /_/|___/\____/_/\___/\___/ ™\n"
-  echo -en "${RESTORE}\n"
+    echo -e "${BLUE}"
+    echo -e "                     _         "
+    echo -e "  ___ ___ _  _____  (_)______  "
+    echo -e " / -_) _ \ |/ / _ \/ / __/ -_) "
+    echo -e " \__/_//_/___/\___/_/\__/\__/  "
+    echo -e ""
+    echo -e "${RESTORE}"
 
+}
+
+
+# #############################################################################
+# Builds the project
+#
+buildProject () {
+
+    echo -e "${GREEN}"
+    echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo -e "+ Building project                              "
+    echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo -e "${RESTORE}"
+
+    dotnet build -c $ENVIRONMENT
 }
 
 
@@ -56,7 +74,7 @@ clean() {
     if [[ ! -f $composeFileName ]]; then
         echo -e "${RED} $ENVIRONMENT is not a valid parameter. File '$composeFileName' does not exist. ${RESTORE}\n"
     else
-        docker-compose -f $composeFileName -p $projectName down --rmi all
+        docker-compose -f $composeFileName down --rmi all
 
         # Remove any dangling images (from previous builds)
         danglingImages=$(docker images -q --filter 'dangling=true')
@@ -67,6 +85,7 @@ clean() {
         echo -en "${YELLOW} Removed docker images ${RESTORE}\n"
     fi
 }
+
 
 # #############################################################################
 # Runs docker-compose.
@@ -93,13 +112,14 @@ compose () {
     else
 
         echo -e "${YELLOW} Building the image $imageName ($ENVIRONMENT). ${RESTORE}\n"
-        docker-compose -f "$composeFileName" -p $projectName build
+        docker-compose -f "$composeFileName" build
 
         echo -e "${YELLOW} Creating the container $imageName ${RESTORE}\n"
-        docker-compose -f $composeFileName -p $projectName kill
-        docker-compose -f $composeFileName -p $projectName up -d
+        docker-compose -f $composeFileName kill
+        docker-compose -f $composeFileName up -d
     fi
 }
+
 
 # #############################################################################
 # Runs the integration tests.
@@ -117,14 +137,16 @@ integrationTests () {
         dir=${dir%*/}
         echo -e ${dir##*/}
         cd $dir
-        dotnet test -c $ENVIRONMENT
+        dotnet test -c $ENVIRONMENT /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
         rtn=$?
         if [ "$rtn" != "0" ]; then
         exit $rtn
         fi
     done
 
+    cd $ROOT_DIR
 }
+
 
 # #############################################################################
 # Deploys nuget packages to nuget feed
@@ -132,20 +154,20 @@ integrationTests () {
 nugetPublish () {
 
     echo -e "${GREEN}"
-    echo -en "++++++++++++++++++++++++++++++++++++++++++++++++"
-    echo -en "+ Deploying nuget packages to nuget feed        "
-    echo -en "+ $nugetFeedUri                                 "
-    echo -en "++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo -e "+ Deploying nuget packages to nuget feed        "
+    echo -e "+ ${branch}                                     "
+    echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
     echo -e "${RESTORE}"
 
-    echo -en "${YELLOW} Using Key: $nugetKey ${RESTORE}\n"
-
-    if [[ -z $ENVIRONMENT ]]; then
-        ENVIRONMENT="debug"
+    if [ -z "$nugetKey" ]; then
+        echo "${RED}You must set the MYGET_KEY_ENVOICE environment variable${RESTORE}"
+        exit 1
     fi
 
-    shopt -s nullglob # hide hidden
+    suffix=$(if [ "$branch" != "master" ]; then echo "ci-$revision"; fi)
 
+    shopt -s nullglob # hide hidden
     cd src
 
     for dir in */ ; do # iterate projects
@@ -155,52 +177,45 @@ nugetPublish () {
 
         for nuspec in *.nuspec; do
 
-        echo -e "\nFound nuspec for ${dir::-1}"
+            echo -e "${GREEN}Found nuspec for ${dir::-1}${RESTORE}"
 
-        if [ -z "$nugetVersionSuffix" ]; then
-
-            dotnet pack \
-            -c $ENVIRONMENT \
-            --include-source \
-            --include-symbols
-
-            echo -en "${YELLOW} Publishing: ${dir::-1}.$nugetVersion ${RESTORE}\n"
-
-            curl \
-            -H 'Content-Type: application/octet-stream' \
-            -H "X-NuGet-ApiKey: $nugetKey" \
-            $nugetFeedUri \
-            --upload-file bin/$ENVIRONMENT/${dir::-1}.$nugetVersion.nupkg
-
-        else
-
-            dotnet pack \
-            -c $ENVIRONMENT \
-            --include-source \
-            --include-symbols \
-            --version-suffix $nugetVersionSuffix
-
-            echo -en "${YELLOW} Publishing: ${dir::-1}.$nugetVersion-$nugetVersionSuffix ${RESTORE}\n"
-
-            curl \
-            -H 'Content-Type: application/octet-stream' \
-            -H "X-NuGet-ApiKey: $nugetKey" \
-            $nugetFeedUri \
-            --upload-file bin/$ENVIRONMENT/${dir::-1}.$nugetVersion-$nugetVersionSuffix.nupkg
-
-        fi
-
-        echo -e "${GREEN}"
-        echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
-        echo -e "Uploaded nuspec for ${dir::-1}                  "
-        echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
-        echo -e "${RESTORE}"
+            if ([ "$branch" == "master" ]); then
+                dotnet pack \
+                    -c $ENVIRONMENT \
+                    -o ../../.artifacts/nuget \
+                    --include-source \
+                    --include-symbols
+            else
+                dotnet pack \
+                    -c $ENVIRONMENT \
+                    -o ../../.artifacts/nuget \
+                    --include-source \
+                    --include-symbols \
+                    --version-suffix $suffix
+            fi
 
         done
 
         cd ..
 
     done
+
+    echo -e "${GREEN}"
+    echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo -e "Publishing packages to ${nugetFeedUri}          "
+    echo -e "++++++++++++++++++++++++++++++++++++++++++++++++"
+    echo -e "${RESTORE}"
+
+    cd $ROOT_DIR
+    cd ./.artifacts/nuget
+
+    dotnet nuget push *.nupkg \
+        -k $nugetKey \
+        -s $nugetFeedUri
+
+    cd $ROOT_DIR
+
+    rm -rf ./artifacts/nuget
 
 }
 
@@ -236,14 +251,16 @@ unitTests () {
         dir=${dir%*/}
         echo -e ${dir##*/}
         cd $dir
-        dotnet test -c $ENVIRONMENT
+        dotnet test -c $ENVIRONMENT /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
         rtn=$?
         if [ "$rtn" != "0" ]; then
         exit $rtn
         fi
     done
 
+    cd $ROOT_DIR
 }
+
 
 # #############################################################################
 # Shows the usage for the script.
@@ -255,7 +272,8 @@ showUsage () {
     echo -e "    Runs build or compose using specific environment (if not provided, debug environment is used)"
     echo -e ""
     echo -e "Commands:"
-    echo -e "    build: Builds a Docker image ('$imageName')."
+    echo -e "    build: Builds the project."
+    echo -e "    build: Builds the project for ci."
     echo -e "    compose: Runs docker-compose."
     echo -e "    clean: Removes the image '$imageName' and kills all containers based on that image."
     echo -e "    composeForDebug: Builds the image and runs docker-compose."
@@ -280,6 +298,7 @@ showUsage () {
 
 }
 
+
 # #############################################################################
 # Switch arguments
 #
@@ -293,8 +312,18 @@ else
     fi
 
     ENVIRONMENT=$(echo -e $2 | tr "[:upper:]" "[:lower:]")
+    if [[ -z $ENVIRONMENT ]]; then ENVIRONMENT="debug"; fi
 
     case "$1" in
+        "build")
+            buildProject
+            ;;
+        "build-ci")
+            compose
+            unitTests
+            integrationTests
+            nugetPublish
+            ;;
         "clean")
             clean
             ;;
@@ -307,10 +336,8 @@ else
             ;;
         "integrationTests")
             compose
-            integrationTests
             ;;
         "nugetPublish")
-            buildProject
             nugetPublish
             ;;
         "unitTests")
